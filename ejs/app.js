@@ -18,7 +18,7 @@ app.use(shopRoutes); // all the client panel routes will be here
 
 // Setting up a page not found page for invailid requests
 app.use((req, res,next) => {
-    res.status(404).render('404', {pageTitle : 'Page Not found'});
+    res.status(404).render('404', {pageTitle : 'Page Not found', page :''});
 });
 
 
