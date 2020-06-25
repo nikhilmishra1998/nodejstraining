@@ -21,13 +21,15 @@ exports.postAddProduct = (req, res, next) => {
 
 // Here we will show the product to our user 
 exports.getListProduct = (req, res, next) => {
-    const products = Products.fetchAll();
-    res.render(
-        'shop', 
-        {
-            pageTitle   : 'My shop', 
-            prods       : products, 
-            page        :  'Shop'
-        }
-    );
+    
+    const products = Products.fetchAll(products => {
+        res.render(
+            'shop', 
+            {
+                pageTitle   : 'My shop', 
+                prods       : products, 
+                page        :  'Shop'
+            }
+        );
+    });
 };
