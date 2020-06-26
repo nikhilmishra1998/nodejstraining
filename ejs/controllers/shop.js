@@ -31,16 +31,26 @@ exports.getShop = (req, res, next) => {
 // Here we will show the cart page to our user 
 exports.getCart = (req, res, next) => {
     
-    const products = Products.fetchAll(products => {
-        res.render(
-            'shop/cart', 
-            {
-                pageTitle   : 'Cart-My shop', 
-                prods       : products, 
-                page        :  'Cart'
+    Cart.getCartItems(cart => {
+        Products.fetchAll(products => {
+            const cartProduct = [];
+            for (const product of products) {
+                const cartProdutData = cart.products.find(p => p.id === product.id);
+                if (cartProdutData) {
+                    cartProduct.push({productData:product, qty: cartProdutData.qty});
+                }
             }
-        );
+            res.render(
+                'shop/cart', 
+                {
+                    pageTitle   : 'Cart-My shop', 
+                    cart        : cartProduct, 
+                    page        :  'Cart'
+                }
+            );
+        });     
     });
+    
 };
 
 exports.postCart = (req, res, next) => {
@@ -51,6 +61,15 @@ exports.postCart = (req, res, next) => {
         Cart.addToCart(productId, product.price);
     });
     res.redirect('/cart');
+};
+
+// Here we will delete the cart items
+exports.deleteCartItem = (req, res, next) => {
+    const productId = req.body.productId;
+    Products.findDataByID(productId, product => {
+        Cart.deleteCartItem(productId, product.price);
+        return res.redirect('/cart');
+    });
 };
 
 // Here we will show the checkout page to our user 

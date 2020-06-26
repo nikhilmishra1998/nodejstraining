@@ -8,7 +8,7 @@ const dirName = path.join(
 )
 module.exports = class Cart {
     static addToCart(productId, price) {
-        fs.readFile(dirName, (error, fileContent) =>{
+        fs.readFile(dirName, (error, fileContent) => {
             let cart = {products:[], totalPrice:0};
             
             // Getting the previous cart
@@ -40,6 +40,38 @@ module.exports = class Cart {
                     console.log(error);
                 }
             });
+        });
+    }
+
+    static deleteCartItem (productId, price) {
+        fs.readFile(dirName, (error, fileContent) => {
+            if (error) {
+                return;
+            }
+            const updatedCart = {...JSON.parse(fileContent)};
+            const product = updatedCart.products.find(p => p.id === productId);
+            
+            if(!product) {
+                return;
+            }
+            const productQty = product.qty;
+            updatedCart.products = updatedCart.products.filter(p => p.id !== productId);
+            updatedCart.totalPrice = updatedCart.totalPrice - (price* productQty);
+            fs.writeFile(dirName, JSON.stringify(updatedCart), error => {
+                if (error) {
+                    console.log(error);
+                }
+            });
+        });
+    }
+
+    static getCartItems (callback) {
+        fs.readFile(dirName, (error, fileContent) => {
+            if (error) {
+                callback(null);
+            } else {
+                callback(JSON.parse(fileContent));
+            }
         });
     }
 }
