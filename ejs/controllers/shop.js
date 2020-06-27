@@ -4,8 +4,8 @@ const Cart = require('../model/cart');
 // Here we will show the product to our user 
 exports.getListProduct = (req, res, next) => {
     
-    Products.fetchAll()
-        .then(([products, fieldData]) => { // this is next generation js syntax where we break an array to their components
+    Products.findAll()
+        .then(products => { // this is next generation js syntax where we break an array to their components
             res.render(
                 'shop/product-list', 
                 {
@@ -93,13 +93,13 @@ exports.getCheckout = (req, res, next) => {
 // Here we will show the product to our user 
 exports.getProduct = (req, res, next) => {
     const prodId = req.params.productId;
-    Products.findDataByID(prodId)
-        .then( ([product]) => {
+    Products.findByPk(prodId)
+        .then(product => {
             res.render(
                 'shop/product-detail', 
                 {
                     pageTitle   : 'Product Detail-My shop', 
-                    product     : product[0], 
+                    product     : product, 
                     page        :  'Pd'
                 }
             );

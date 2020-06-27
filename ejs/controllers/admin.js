@@ -1,4 +1,5 @@
 const Products = require('../model/product');
+const Product = require('../model/product');
 
 // Here we will show the add product page.
 exports.getAddProduct = (req, res, next) => {
@@ -19,11 +20,18 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl      = req.body.imageUrl;
     const description   = req.body.description;
     const price         = req.body.price;
-    const product       = new Products(null, title, imageUrl, description, price);
-    product
-        .save()
-        .then(() => {})
-        .catch(error => { console.log('error in adding product', error);});
+    Product.create({
+        title: title,
+        price: price,
+        imageUrl: imageUrl,
+        description: description
+    })
+        .then(result => {
+            console.log(result);
+        })
+        .catch(error => {
+            console.log(error);
+        });
     return res.redirect('/admin/products');
 };
 
@@ -32,8 +40,8 @@ exports.getEditProduct = (req, res, next) => {
     const editMode = req.query.edit === 'true';
     const productID = req.params.productId;
     if ( editMode) {
-        Products.findDataByID(productID)
-            .then(([product, fieldData]) => {
+        Products.findByPk(productID)
+            .then(product => {
                 if (product) {
                     res.render(
                         'admin/edit-product', 
@@ -41,7 +49,7 @@ exports.getEditProduct = (req, res, next) => {
                             pageTitle   : 'Edit Product', 
                             page        : 'Edit Product',
                             editMode    : editMode,
-                            product     : product[0]
+                            product     : product
                         }
                     );  
                 } else {
@@ -63,25 +71,29 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageUrl   = req.body.imageUrl;
     const updatedPrice      = req.body.price;
     const updatedDesc       = req.body.description;
-    
-    // Creating new instance for updated product.
-    const products = new Products(
-        productId,
-        updatedTitle,
-        updatedImageUrl,
-        updatedDesc,
-        updatedPrice
-    );
-    
-    products.save();
-    return res.redirect('/admin/products');
+    Product.findByPk(productId)
+        .then(product => {
+            product.title = updatedTitle,
+            product.price = updatedPrice,
+            product.imageUrl = updatedImageUrl,
+            product.description = updatedDesc
+            return product.save();
+        })
+        .then(result => {
+            console.log('Updated Successfully');
+
+            return res.redirect('/admin/products');
+        })
+        .catch(error => {
+            console.log(error);
+        });
 };
 
 // Here we will show the product list page to the client.
 exports.getAllProduct = (req, res, next) => {
 
-    Products.fetchAll()
-        .then(([products, fieldData]) => {
+    Products.findAll()
+        .then(products => {
             res.render(
                 'admin/products',
                 {
@@ -97,6 +109,15 @@ exports.getAllProduct = (req, res, next) => {
 // From here we delete product and cart if exists
 exports.deleteProduct = (req, res, next) => {
     const productId = req.body.productId;
-    Products.deleteProductById(productId);
-    return res.redirect('/admin/products');;
+    Product.findByPk(productId)
+        .then(product => {
+            return product.destroy();
+        })
+        .then(result => {
+            console.log('Product Deleted');
+            return res.redirect('/admin/products');
+        })
+        .catch(error => {
+            console.log(error);
+        });
 };
