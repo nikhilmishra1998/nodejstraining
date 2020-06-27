@@ -10,6 +10,7 @@
 <body>
     <%- include('../partials/navigation.ejs') %>
     <main>
+        
         <form class="product-form" action="/admin/<%= !editMode ? 'add':'edit'%>-product" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>

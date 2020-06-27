@@ -4,16 +4,18 @@ const Cart = require('../model/cart');
 // Here we will show the product to our user 
 exports.getListProduct = (req, res, next) => {
     
-    const products = Products.fetchAll(products => {
-        res.render(
-            'shop/product-list', 
-            {
-                pageTitle   : 'Product-My shop', 
-                prods       : products, 
-                page        :  'Products'
-            }
-        );
-    });
+    Products.fetchAll()
+        .then(([products, fieldData]) => { // this is next generation js syntax where we break an array to their components
+            res.render(
+                'shop/product-list', 
+                {
+                    pageTitle   : 'Product-My shop', 
+                    prods       : products, 
+                    page        :  'Products'
+                }
+            );
+        })
+        .catch(error => { console.log('DB Error ', error);});
 };
 
 // Here we will show the index to our user 
@@ -91,14 +93,16 @@ exports.getCheckout = (req, res, next) => {
 // Here we will show the product to our user 
 exports.getProduct = (req, res, next) => {
     const prodId = req.params.productId;
-    const product = Products.findDataByID(prodId, product => {
-        res.render(
-            'shop/product-detail', 
-            {
-                pageTitle   : 'Product Detail-My shop', 
-                product     : product, 
-                page        :  'Pd'
-            }
-        );
-    });
+    Products.findDataByID(prodId)
+        .then( ([product]) => {
+            res.render(
+                'shop/product-detail', 
+                {
+                    pageTitle   : 'Product Detail-My shop', 
+                    product     : product[0], 
+                    page        :  'Pd'
+                }
+            );
+        })
+        .catch(error => console.log(error));
 };

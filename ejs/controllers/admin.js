@@ -20,8 +20,11 @@ exports.postAddProduct = (req, res, next) => {
     const description   = req.body.description;
     const price         = req.body.price;
     const product       = new Products(null, title, imageUrl, description, price);
-    product.save();
-    res.redirect('/admin/products');
+    product
+        .save()
+        .then(() => {})
+        .catch(error => { console.log('error in adding product', error);});
+    return res.redirect('/admin/products');
 };
 
 // Here we will edit the added product.
@@ -29,21 +32,23 @@ exports.getEditProduct = (req, res, next) => {
     const editMode = req.query.edit === 'true';
     const productID = req.params.productId;
     if ( editMode) {
-        Products.findDataByID(productID, product => {
-            if (product) {
-                res.render(
-                    'admin/edit-product', 
-                    {
-                        pageTitle   : 'Edit Product', 
-                        page        : 'Edit Product',
-                        editMode    : editMode,
-                        product     : product
-                    }
-                );  
-            } else {
-                return res.redirect('/404');
-            }
-        });
+        Products.findDataByID(productID)
+            .then(([product, fieldData]) => {
+                if (product) {
+                    res.render(
+                        'admin/edit-product', 
+                        {
+                            pageTitle   : 'Edit Product', 
+                            page        : 'Edit Product',
+                            editMode    : editMode,
+                            product     : product[0]
+                        }
+                    );  
+                } else {
+                    return res.redirect('/404');
+                }
+            })
+            .catch(error => { console.log(error); });
     } else {
         return res.redirect('/404');
     }    
@@ -75,16 +80,18 @@ exports.postEditProduct = (req, res, next) => {
 // Here we will show the product list page to the client.
 exports.getAllProduct = (req, res, next) => {
 
-    const products = Products.fetchAll(products => {
-        res.render(
-            'admin/products',
-            {
-                pageTitle   : 'Admin all products',
-                prods       : products, 
-                page        : 'Admin Products'
-            }
-        );
-    });
+    Products.fetchAll()
+        .then(([products, fieldData]) => {
+            res.render(
+                'admin/products',
+                {
+                    pageTitle   : 'Admin all products',
+                    prods       : products, 
+                    page        : 'Admin Products'
+                }
+            );
+        })
+        .catch(error => { console.log('Error to get product', error);});
 };
 
 // From here we delete product and cart if exists
