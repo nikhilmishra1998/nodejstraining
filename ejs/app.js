@@ -21,6 +21,8 @@ const Product       = require('./model/product');
 const User          = require('./model/user');
 const Cart          = require('./model/cart');
 const CartItem      = require('./model/cart-item');
+const Order         = require('./model/order');
+const OrderItem     = require('./model/order-item');
 
 // Code for Routes
 app.use((req, res, next) => {
@@ -46,10 +48,12 @@ User.hasOne(Cart);
 Cart.belongsTo(User);
 Cart.belongsToMany(Product, {through : CartItem});
 Product.belongsToMany(Cart, {through : CartItem});
+User.hasMany(Order);
+Order.belongsToMany(Product, {through : OrderItem});
 
 sequelize
     .sync()
-    // .sync({ force : true}) // if you want to create all the tables from scrach
+    //.sync({ force : true}) // if you want to create all the tables from scrach
     .then(result =>{
         return User.findByPk(1);
     })

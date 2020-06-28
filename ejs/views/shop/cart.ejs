@@ -9,6 +9,8 @@
 
     <main>
         <% if(cart.length > 0) {%>
+            <h1>Here is your cart</h1>
+            <hr>
             <ul>
                 <% cart.forEach(p => {%>
                     <li>
@@ -20,8 +22,12 @@
                     </li>
                 <%});%>
             </ul>
+            <hr>
+            <form action="/order" method="post">
+                <button type="submit" class="btn">Order Now!</button>
+            </form>
         <% } else {%>
-            <h1>No Products in the Cart!</h1>
+            <h1>Sorry! You haven't added any product to your cart yet.</h1>
         <% } %>
     </main>
 

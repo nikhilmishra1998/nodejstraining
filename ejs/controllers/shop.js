@@ -1,5 +1,5 @@
 const Product = require('../model/product');
-const Cart = require('../model/cart');
+const Order = require('../model/order');
 
 // Here we will show the product to our user 
 exports.getListProduct = (req, res, next) => {
@@ -109,18 +109,52 @@ exports.deleteCartItem = (req, res, next) => {
 };
 
 // Here we will show the checkout page to our user 
-exports.getCheckout = (req, res, next) => {
-    
-    const products = Product.fetchAll(products => {
-        res.render(
-            'shop/checkout', 
-            {
-                pageTitle   : 'Checkout-My shop', 
-                prods       : products, 
-                page        :  'Checkout'
-            }
-        );
-    });
+exports.getOrder = (req, res, next) => {
+    req.user
+        .getOrders({include : ['products']})
+        .then(orders => {
+            res.render(
+                'shop/order', 
+                {
+                    pageTitle   : 'Order-My shop',
+                    page        :  'Order',
+                    orders      : orders
+                }
+            );
+        })
+        .catch(error => {
+            console.log(error);
+        });
+};
+
+exports.postOrder = (req, res, next) => {
+    let fetchedCart;
+    req.user
+        .getCart()
+        .then(cart => {
+            fetchedCart = cart;
+            return cart.getProducts();
+        })
+        .then(products => {
+            return req.user
+                .createOrder()
+                .then(order => {
+                    return order.addProducts(
+                        products.map(product => {
+                            product.orderItem = { quantity: product.cartItem.quantity}
+                            return product;
+                        })
+                    );
+                })
+                .catch(error => console.log(error));
+        })
+        .then(result => {
+            return fetchedCart.setProducts(null);
+        })
+        .then(result => {
+            res.redirect('/order');
+        })
+        .catch(error => console.log(error));
 };
 
 
