@@ -8,13 +8,13 @@
     <%- include('../partials/navigation.ejs') %>
 
     <main>
-        <% if(cart.length >0) {%>
+        <% if(cart.length > 0) {%>
             <ul>
                 <% cart.forEach(p => {%>
                     <li>
-                        <p><%= p.productData.title%> (<%= p.qty%>)</p>
+                        <p><%= p.title%> (<%= p.cartItem.quantity%>)</p>
                         <form action="/delete-cart-item" method="POST">
-                            <input type="hidden" name="productId" value="<%= p.productData.id%>">
+                            <input type="hidden" name="productId" value="<%= p.id%>">
                             <button type="submit" class="btn">Delete</button>
                         </form>
                     </li>

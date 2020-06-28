@@ -1,4 +1,3 @@
-const Products = require('../model/product');
 const Product = require('../model/product');
 
 // Here we will show the add product page.
@@ -20,7 +19,7 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl      = req.body.imageUrl;
     const description   = req.body.description;
     const price         = req.body.price;
-    Product.create({
+    req.user.createProduct({
         title: title,
         price: price,
         imageUrl: imageUrl,
@@ -40,7 +39,7 @@ exports.getEditProduct = (req, res, next) => {
     const editMode = req.query.edit === 'true';
     const productID = req.params.productId;
     if ( editMode) {
-        Products.findByPk(productID)
+        Product.findByPk(productID)
             .then(product => {
                 if (product) {
                     res.render(
@@ -92,7 +91,8 @@ exports.postEditProduct = (req, res, next) => {
 // Here we will show the product list page to the client.
 exports.getAllProduct = (req, res, next) => {
 
-    Products.findAll()
+    req.user
+        .getProducts()
         .then(products => {
             res.render(
                 'admin/products',
