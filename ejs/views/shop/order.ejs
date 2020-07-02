@@ -8,18 +8,27 @@
 <%- include('../partials/navigation.ejs') %>
 
     <main>
-        <% if(orders.length > 0) {%>
+        <% if(orders.length > 0) { %>
             <h1>Here is your orders</h1>
             <hr>
             <ul>
+                <% let count =0;%>
                 <% orders.forEach(order => { %>
+                    <% let orderAmount = 0;%>
                     <li>
-                        <h1>#<%= order.id%> </h1>
-                        <ul>
-                            <% order.products.forEach(product => {%>
-                                <li><%= product.title%> (<%=product.orderItem.quantity %>)</li>
+                        <h1>#<%= ++count%></h1>
+                        <p> <b>Order Id :</b> <%= order._id%></p>
+                        <ol>
+                            <% order.items.forEach(product => {%>
+                                <%
+                                    orderAmount += (product.price*product.quantity);
+                                %>
+                                <li>
+                                    <b>Name: </b> <%= product.title%> <b> Quantity: </b>(<%=product.quantity %>) <b>Price:</b> <%= product.price%> * <%= product.quantity%> = <%= (product.price*product.quantity)%>
+                                </li>
                             <% });%>
-                        </ul>
+                        </ol>
+                        <p> <b>Total : </b> <%= orderAmount%></p>
                     </li>
                 <%});%>
             </ul>
