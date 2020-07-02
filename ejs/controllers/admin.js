@@ -1,5 +1,23 @@
 const Product = require('../model/product');
 
+// Here we will show the product list page to the client.
+exports.getAllProduct = (req, res, next) => {
+
+    Product
+        .find()
+        .then(products => {
+            res.render(
+                'admin/products',
+                {
+                    pageTitle   : 'Admin all products',
+                    prods       : products, 
+                    page        : 'Admin Products'
+                }
+            );
+        })
+        .catch(error => { console.log('Error to get product', error);});
+};
+
 // Here we will show the add product page.
 exports.getAddProduct = (req, res, next) => {
     res.render(
@@ -20,14 +38,13 @@ exports.postAddProduct = (req, res, next) => {
     const description   = req.body.description;
     const price         = req.body.price;
     
-    const product       = new Product(
-        title, 
-        price, 
-        imageUrl, 
-        description, 
-        null, 
-        req.user._id
-    );
+    const product       = new Product({
+        title : title, 
+        price : price, 
+        imageUrl : imageUrl, 
+        description : description,
+        userId : req.user
+    });
     
     product
         .save()
@@ -76,16 +93,16 @@ exports.postEditProduct = (req, res, next) => {
     const updatedImageUrl   = req.body.imageUrl;
     const updatedPrice      = req.body.price;
     const updatedDesc       = req.body.description;
-    const product           = new Product(
-        updatedTitle, 
-        updatedPrice, 
-        updatedImageUrl, 
-        updatedDesc, 
-        productId, 
-        req.user._id
-    );
-    product
-        .save()
+    
+    Product.findById(productId)
+        .then(product => {
+            product.title       = updatedTitle;
+            product.price       = updatedPrice;
+            product.imageUrl    = updatedImageUrl;
+            product.description = updatedDesc;
+            product.userId      = req.user;
+            return product.save();
+        })    
         .then(result => {
             console.log(result);
             return res.redirect('/admin/products');
@@ -95,28 +112,11 @@ exports.postEditProduct = (req, res, next) => {
         });
 };
 
-// Here we will show the product list page to the client.
-exports.getAllProduct = (req, res, next) => {
-
-    Product
-        .fetchAll()
-        .then(products => {
-            res.render(
-                'admin/products',
-                {
-                    pageTitle   : 'Admin all products',
-                    prods       : products, 
-                    page        : 'Admin Products'
-                }
-            );
-        })
-        .catch(error => { console.log('Error to get product', error);});
-};
 
 // From here we delete product and cart if exists
 exports.deleteProduct = (req, res, next) => {
     const productId = req.body.productId;
-    Product.deleteById(productId)
+    Product.findByIdAndRemove(productId)
         .then(() => {
             console.log('Product Deleted sucessfully');
             return res.redirect('/admin/products');

@@ -16,7 +16,7 @@ exports.getShop = (req, res, next) => {
 // Here we will show the product to our user 
 exports.getListProduct = (req, res, next) => {
     
-    Product.fetchAll()
+    Product.find()
         .then(products => { // this is next generation js syntax where we break an array to their components
             res.render(
                 'shop/product-list', 
@@ -34,9 +34,10 @@ exports.getListProduct = (req, res, next) => {
 exports.getCart = (req, res, next) => {
     
    req.user
-    .getCart()
-    .then(products => {
-        console.log(products);
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+        const products = user.cart.items;
         res.render(
             'shop/cart', 
             {
